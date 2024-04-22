@@ -37,6 +37,7 @@ export class TasksController {
 
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req:Request) {
+    console.log(req.headers.authorization.split(" ")[1])
     return this.tasksService.remove(+id, req.headers.authorization.split(" ")[1]);
   }
 }

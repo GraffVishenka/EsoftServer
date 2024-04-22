@@ -64,7 +64,7 @@ export class TasksService {
   }
 
   async remove(id: number, token) {
-    await this.repository.delete(id)
+    await this.repository.delete({id:id})
     return await this.findAll(token)
   }
 }
