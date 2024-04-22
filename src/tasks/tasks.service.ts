@@ -63,7 +63,8 @@ export class TasksService {
     return await this.findAll(token)
   }
 
-  async remove(id: number) {
-    return await this.repository.delete(id)
+  async remove(id: number, token) {
+    await this.repository.delete(id)
+    return await this.findAll(token)
   }
 }
