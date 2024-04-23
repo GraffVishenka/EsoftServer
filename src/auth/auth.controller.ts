@@ -32,7 +32,6 @@ export class AuthController {
   @ApiResponse({status:200, type:UserEntity})
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @UseGuards(LocalAuthGuard)
   @Get("/check")
   checkAuth(@Request() req){
     return req.user
