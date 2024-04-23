@@ -39,10 +39,10 @@ export class UsersService {
     }
   }
 
-  async getAllMyUsers(token) {
-    const dep = await this.jwtService.decode(token);
+  async getAllMyUsers(email) {
+    const user = await this.getUserByEmail(email)
     const users = await this.repository.find({
-     where: { deportament: dep.user.deportament },
+     where: { deportament: user.deportament },
     });
     
     return users;

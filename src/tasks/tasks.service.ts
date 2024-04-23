@@ -16,22 +16,23 @@ export class TasksService {
     private repository: Repository<TaskEntity>
   ) {}
 
-  async create(createTaskDto: CreateTaskDto, token) {
+  async create(createTaskDto: CreateTaskDto, email) {
     try {
+      const candidate = this.userService.getUserByEmail(email)
       await this.repository.save(createTaskDto);
-      return await this.findAll(token)
+      return await this.findAll(candidate)
       
     } catch (error) {
       throw new HttpException(
         "Заполните обязательные поля!",
-        HttpStatus.BAD_REQUEST
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
-  async findAll(token) {
-    const candidate = await this.jwtService.decode(token);
-    const user = await this.userService.getUserByEmail(candidate.user.email);
+  async findAll(candidate) {
+
+    const user = await this.userService.getUserByEmail(candidate.email);
     const tasks = await this.repository.find({ where: { responsible: user }, relations:["responsible", "creator"] });
     let reqTask = {}
     for(let i = 0; i < tasks.length; i++){
@@ -57,14 +58,22 @@ export class TasksService {
     return task;
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto, token) {
-    await this.repository.update(id, updateTaskDto)
+  async update(id: number, updateTaskDto: UpdateTaskDto, candidate) {
+    try {
+      await this.repository.update(id, updateTaskDto)
+  
+      return await this.findAll(candidate)
 
-    return await this.findAll(token)
+    } catch (error) {
+      throw new HttpException(
+        "Не удалось обновить задачу",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
-  async remove(id: number, token) {
+  async remove(id: number, candidate) {
     await this.repository.delete({id:id})
-    return await this.findAll(token)
+    return await this.findAll(candidate)
   }
 }
