@@ -1,26 +1,40 @@
-import { Body, Controller, Get, Post, Req} from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, Post, UseGuards, Request } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { AuthService } from "./auth.service";
-import { Request } from "express";
+import { LocalAuthGuard } from "./guards/local.guard";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { UserEntity } from "src/users/entities/user.entity";
 
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({summary:"Авторизация"})
+  @ApiResponse({status:200, type:UserEntity})
+  @UseGuards(LocalAuthGuard)
   @Post("/sign-in")
-  signIn(@Body() userDto: CreateUserDto) {
-    return this.authService.signIn(userDto);
+  signIn(@Request() req) {
+    return this.authService.signIn(req.user);
   }
 
+  @ApiOperation({summary:"Регистрация"})
+  @ApiResponse({status:200, type:UserEntity})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post("/sign-up")
   signUp(@Body() userDto: CreateUserDto) {
     return this.authService.signUp(userDto);
   }
 
+  @ApiOperation({summary:"Проверка авторизации"})
+  @ApiResponse({status:200, type:UserEntity})
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(LocalAuthGuard)
   @Get("/check")
-  checkAuth(@Req() req:Request){
-    return this.authService.checkAuth(req.headers.authorization.split(" ")[1])
+  checkAuth(@Request() req){
+    return req.user
   }
 }

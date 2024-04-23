@@ -16,7 +16,7 @@ export class UpdateTaskDto extends PartialType(CreateTaskDto) {
   @ApiProperty({example: '2024-05-13', description: 'Дедлайн'})
   @IsDate({ message: "Должно быть датой" })
   @IsOptional()
-  readonly deadeline?: Date;
+  readonly deadline?: Date;
 
   @ApiProperty({example: 'Средний', description: 'Приоритет'})
   @IsString({ message: "Должно быть строкой" })

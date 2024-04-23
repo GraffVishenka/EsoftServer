@@ -18,9 +18,8 @@ export class AuthService {
   ) {}
 
   async signIn(dto) {
-    const user = await this.validateUser(dto);
-    const accessToken = await this.generateToken(user);
-    return { user, ...accessToken };
+    const accessToken = await this.generateToken(dto);
+    return { dto, ...accessToken };
   }
 
   async signUp(CreateUserDto: CreateUserDto) {
@@ -48,24 +47,20 @@ export class AuthService {
     };
   }
 
-  private async validateUser(userDto) {
+   async validateUser(userDto) {
     const user = await this.userService.getUserByEmail(userDto.email);
-    if (!user) {
-      throw new UnauthorizedException({
-        message: "Некорректный емайл или пароль",
-      });
-    }
+
     const passwordEquals = await bcrypt.compare(
       userDto.password,
       user.password
     );
+    
     if (user && passwordEquals) {
       return user;
-    }else{
-      throw new UnauthorizedException({
-        message: "Некорректный емайл или пароль",
-      });
     }
+
+    return null;
+    
   }
 
   async checkAuth(token) {
